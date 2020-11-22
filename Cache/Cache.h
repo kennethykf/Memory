@@ -1,7 +1,7 @@
 /*
  * Cache.h
  *
- *  Created on: 2020¦~11¤ë16¤é
+ *  Created on: 2020Â¦~11Â¤Ã«16Â¤Ã©
  *      Author: Kenneth Yeung
  */
 
@@ -43,7 +43,7 @@ public:
 	Cache()
 	{
 		std::cout << "Cache::Cache" << std::endl;
-		std::cout << "Capcity: " << Capacity << std::endl;
+		std::cout << "Capacity: " << Capacity << std::endl;
 		std::cout << "BlockSize: " << BlockSize << std::endl;
 		std::cout << "Associativity: " << Associativity << std::endl;
 	}
