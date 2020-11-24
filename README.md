@@ -1,2 +1,2 @@
 # Memory
-C++ cache implementation
+C++ CPU cache implementation
