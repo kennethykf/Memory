@@ -21,7 +21,7 @@
 
 //Capacity must be divisible by BlockSize
 //Block Size must be power of 2
-//N-way set-associative, N must be 2, 4 or 8
+//N-way set-associative, N > 1
 //todo: do compile time check, (with c++20 concept/require?)
 //todo: add access latency
 template<unsigned Capacity, unsigned BlockSize, unsigned Associativity, CacheReplacementPolicy Policy>
