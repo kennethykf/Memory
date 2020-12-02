@@ -1,7 +1,7 @@
 /*
  * Cache.h
  *
- *  Created on: 2020¦~11¤ë16¤é
+ *  Created on: 2020年11月16日
  *      Author: Kenneth Yeung
  */
 
@@ -21,9 +21,8 @@
 
 //Capacity must be divisible by BlockSize
 //Block Size must be power of 2
-//N-way set-associative, N > 1
-//todo: do compile time check, (with c++20 concept/require?)
-//todo: add access latency
+//todo: do compile time check, (with c++20 concept?)
+//todo: access latency
 template<unsigned Capacity, unsigned BlockSize, unsigned Associativity, CacheReplacementPolicy Policy>
 class Cache
 {
@@ -43,11 +42,10 @@ public:
 	Cache()
 	{
 		std::cout << "Cache::Cache" << std::endl;
-		std::cout << "Capacity: " << Capacity << std::endl;
+		std::cout << "Capcity: " << Capacity << std::endl;
 		std::cout << "BlockSize: " << BlockSize << std::endl;
 		std::cout << "Associativity: " << Associativity << std::endl;
 	}
-
 
 	bool has_tag(const Address& address) const
 	{
@@ -78,8 +76,8 @@ public:
 		}
 	}
 
-	//for storing from upper level caches/memory only, not for updating data
-	//return true if a free slot is available, otherwise return false
+	//for store from upper level caches/memory only, not for updating data
+	//return true if there is space for the block, otherwise return false
 	bool store_block(const Address& address, const Block& block)
 	{
 		const CacheAddress* cache_address = reinterpret_cast<const CacheAddress*>(&address);
@@ -115,7 +113,6 @@ public:
 		return false;
 	}
 
-	//return the evicted cache entry, providing necessary information(tag, block and dirty bit) for cache controller to write back if needed.
 	CacheEntry evict_and_replace(const Address& address, const Block& block)
 	{
 		const CacheAddress* cache_address = reinterpret_cast<const CacheAddress*>(&address);
@@ -137,18 +134,23 @@ public:
 	//tag size in bits
 	static constexpr unsigned tag_size()
 	{
-		return sizeof(Address) * 8 - memory::log_2( num_of_sets() ) - memory::log_2(BlockSize);
+//		 tag_length = address_length - index_length - block_offset_length
+		unsigned tag_length = 0;
+		tag_length = sizeof(Address) * 8 - memory::log_2( num_of_sets() ) - memory::log_2(BlockSize);
+
+		return tag_length;
 	}
 	static constexpr unsigned num_of_sets() { return Capacity / (BlockSize * Associativity); }
 	static constexpr unsigned num_of_blocks() { return Capacity / BlockSize; }
 
+
 	struct CacheAddress
 	{
 		typedef Address::Type Type;
-		// <tag><index><offset>
-		// little endian
+
+		//little endian
 		Type offset: memory::log_2(BlockSize);
-		Type index: memory::log_2( num_of_sets() );	//does not support direct mapped cache, which has only 1 set, requiring 0 bits to represent.
+		Type index: memory::log_2( num_of_sets() );
 		Type tag: Cache<Capacity, BlockSize, Associativity, Policy>::tag_size();
 	};
 
