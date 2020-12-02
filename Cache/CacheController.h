@@ -1,7 +1,7 @@
 /*
  * CacheController.h
  *
- *  Created on: 2020¦~11¤ë16¤é
+ *  Created on: 2020å¹´11æœˆ16æ—¥
  *      Author: Kenneth Yeung
  */
 
@@ -21,6 +21,8 @@ class CacheController
 public:
 //	typedef Cache<32*1024, 64, 8, CacheReplacementPolicy::PLRU1> CacheType;
 	typedef Cache<256, 64, 2, CacheReplacementPolicy::PLRU1> CacheType;
+	typedef Cache<262144, 64, 8, CacheReplacementPolicy::PLRU1> L2CacheType;
+	typedef Cache<20971520, 64, 20, CacheReplacementPolicy::PLRU1> L3CacheType;	//shared
 	typedef typename CacheType::Block BlockType;
 
 	CacheController():hit_count_(0), miss_count_(0){}
@@ -32,7 +34,6 @@ public:
 		{
 			//cache hit
 			++hit_count_;
-			std::cout << "Cache hit" << std::endl;
 			l1_cache_.load_block(address);
 
 		}
@@ -40,10 +41,10 @@ public:
 		{
 			//cache miss
 			++miss_count_;
-			std::cout << "Cache miss" << std::endl;
-			//todo: pretend to read from L2Cache/Memory
+			//todo: read from L2Cache/Memory
 			if ( !l1_cache_.store_block(address, dummy_block_) )
 				l1_cache_.evict_and_replace(address, dummy_block_);
+			l1_cache_.load_block(address);
 		}
 
 	}
@@ -54,18 +55,17 @@ public:
 		{
 			//cache hit
 			++hit_count_;
-			std::cout << "Cache hit" << std::endl;
 			l1_cache_.write(address, data, size);
 		}
 		else
 		{
 			//cache miss
 			++miss_count_;
-			std::cout << "Cache miss" << std::endl;
-			//todo: pretend to read from L2Cache/Memory
-			l1_cache_.store_block(address, dummy_block_);
+			//todo: write back to L2Cache/main memory if dirty bit is true
+			if ( !l1_cache_.store_block(address, dummy_block_) )
+				l1_cache_.evict_and_replace(address, dummy_block_);
+			l1_cache_.write(address, data, size);
 		}
-
 	}
 
 
