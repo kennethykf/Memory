@@ -29,7 +29,7 @@ public:
 
 	void read(const Address& address, size_t size)
 	{
-		std::cout << __PRETTY_FUNCTION__ << " " << address.value() << std::endl;
+		//std::cout << __PRETTY_FUNCTION__ << " " << address.value() << std::endl;
 		if ( l1_cache_.has_tag(address))
 		{
 			//cache hit
